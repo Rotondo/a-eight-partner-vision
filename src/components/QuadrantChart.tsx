@@ -66,7 +66,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       { label: 'P', color: sizeColorMap['P'] },
       { label: 'M', color: sizeColorMap['M'] },
       { label: 'G', color: sizeColorMap['G'] },
-      { label: 'GG', color: sizeColorMap['GG'] }
+      { label: 'GG', color: '#FF46A2'['GG'] }
     ];
 
     const legend = svg.append('g')
