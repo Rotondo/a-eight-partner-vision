@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { Partner, sizeColorMap } from '@/types/partner';
+import { calculateChartPosition } from '@/lib/form-utils';
 
 interface QuadrantChartProps {
   partners: Partner[];
@@ -128,14 +129,24 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .style('z-index', '10')
         .style('pointer-events', 'none');
       
+      // Calculate positions using the formula
+      const partnersWithPositions = partners.map(partner => {
+        const position = calculateChartPosition(partner);
+        return {
+          ...partner,
+          calculatedX: position.x,
+          calculatedY: position.y
+        };
+      });
+      
       // Add points
       const points = g.selectAll('.partner-point')
-        .data(partners)
+        .data(partnersWithPositions)
         .enter()
         .append('circle')
         .attr('class', 'partner-point')
-        .attr('cx', d => xScale(Number(d.leadPotential)))
-        .attr('cy', d => yScale(Number(d.investmentPotential)))
+        .attr('cx', d => xScale(d.calculatedX))
+        .attr('cy', d => yScale(d.calculatedY))
         .attr('r', d => 5 + Number(d.engagement) * 2)
         .attr('fill', d => sizeColorMap[d.size])
         .attr('stroke', 'white')
@@ -155,6 +166,8 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
               <div>Engajamento: ${d.engagement}</div>
               <div>Lead: ${d.leadPotential}</div>
               <div>Investimento: ${d.investmentPotential}</div>
+              <div>Alinhamento: ${d.strategicAlignment || '0'}</div>
+              <div class="mt-1 text-xs text-gray-500">Score: X=${d.calculatedX.toFixed(1)}, Y=${d.calculatedY.toFixed(1)}</div>
             `);
         })
         .on('mousemove', function(event) {
@@ -175,12 +188,12 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       
       // Add labels for points
       g.selectAll('.partner-label')
-        .data(partners)
+        .data(partnersWithPositions)
         .enter()
         .append('text')
         .attr('class', 'partner-label')
-        .attr('x', d => xScale(Number(d.leadPotential)))
-        .attr('y', d => yScale(Number(d.investmentPotential)) - 10 - Number(d.engagement))
+        .attr('x', d => xScale(d.calculatedX))
+        .attr('y', d => yScale(d.calculatedY) - 10 - Number(d.engagement))
         .attr('text-anchor', 'middle')
         .attr('fill', 'currentColor')
         .attr('font-size', '0.75rem')

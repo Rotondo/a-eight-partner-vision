@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Partner, companySize, potentialOptions, engagementOptions, defaultPartner } from '@/types/partner';
+import { Partner, companySize, potentialOptions, engagementOptions, strategicAlignmentOptions, defaultPartner } from '@/types/partner';
 import { validatePartnerForm } from '@/lib/form-utils';
 import { toast } from '@/components/ui/sonner';
 
@@ -125,6 +125,25 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
           </SelectTrigger>
           <SelectContent>
             {engagementOptions.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="strategicAlignment">Alinhamento Estratégico</Label>
+        <Select
+          value={partner.strategicAlignment || "0"}
+          onValueChange={(value) => handleInputChange('strategicAlignment', value)}
+        >
+          <SelectTrigger id="strategicAlignment" className="w-full">
+            <SelectValue placeholder="Selecione" />
+          </SelectTrigger>
+          <SelectContent>
+            {strategicAlignmentOptions.map((option) => (
               <SelectItem key={option} value={option}>
                 {option}
               </SelectItem>

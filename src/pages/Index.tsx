@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Logo from '@/components/Logo';
 import PartnerForm from '@/components/PartnerForm';
 import QuadrantChart from '@/components/QuadrantChart';
+import CalculationModal from '@/components/CalculationModal';
 import { Partner, defaultPartner } from '@/types/partner';
 import { toast } from '@/components/ui/sonner';
 
@@ -10,35 +11,48 @@ const Index = () => {
   const [partners, setPartners] = useState<Partner[]>([
     {
       id: "1",
-      name: "Parceiro Exemplo 1",
-      leadPotential: "4",
-      investmentPotential: "3",
-      size: "G",
-      engagement: "4"
+      name: "VTEX",
+      leadPotential: "5",
+      investmentPotential: "4",
+      size: "GG",
+      engagement: "5",
+      strategicAlignment: "5"
     },
     {
       id: "2",
-      name: "Parceiro Exemplo 2",
-      leadPotential: "2",
-      investmentPotential: "1",
-      size: "PP",
-      engagement: "1"
+      name: "Koin",
+      leadPotential: "4",
+      investmentPotential: "5",
+      size: "G",
+      engagement: "4",
+      strategicAlignment: "4"
     },
     {
       id: "3",
-      name: "Parceiro Exemplo 3",
+      name: "Google",
       leadPotential: "5",
-      investmentPotential: "5",
+      investmentPotential: "1",
       size: "GG",
-      engagement: "5"
+      engagement: "1",
+      strategicAlignment: "1"
     },
     {
       id: "4",
-      name: "Parceiro Exemplo 4",
-      leadPotential: "1",
-      investmentPotential: "4",
-      size: "M",
-      engagement: "3"
+      name: "Wake",
+      leadPotential: "4",
+      investmentPotential: "3",
+      size: "G",
+      engagement: "4",
+      strategicAlignment: "5"
+    },
+    {
+      id: "5",
+      name: "Uappi",
+      leadPotential: "5",
+      investmentPotential: "3",
+      size: "G",
+      engagement: "4",
+      strategicAlignment: "4"
     }
   ]);
   const [currentPartner, setCurrentPartner] = useState<Partner>({...defaultPartner});
@@ -102,9 +116,12 @@ const Index = () => {
           
           {/* Right Panel - Chart */}
           <div className="lg:col-span-7 bg-white rounded-lg shadow-md p-6 animate-fade-in h-[70vh]">
-            <h2 className="text-xl font-semibold mb-6 text-corporate-blue">
-              Quadrante de Parceiros
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-corporate-blue">
+                Quadrante de Parceiros
+              </h2>
+              <CalculationModal />
+            </div>
             <div className="h-full">
               <QuadrantChart
                 partners={partners}
