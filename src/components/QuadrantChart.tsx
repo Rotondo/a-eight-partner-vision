@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { Partner, sizeColorMap } from '@/types/partner';
@@ -17,7 +16,6 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
     if (!svgRef.current || partners.length === 0) return;
     
     const createChart = () => {
-      // Clear previous chart
       d3.select(svgRef.current).selectAll('*').remove();
       
       const svg = d3.select(svgRef.current);
@@ -28,7 +26,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       const innerWidth = width - margin.left - margin.right;
       const innerHeight = height - margin.top - margin.bottom;
       
-      // Create scales
+      // Configuração das escalas
       const xScale = d3.scaleLinear()
         .domain([0, 5])
         .range([0, innerWidth])
@@ -38,35 +36,25 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .domain([0, 5])
         .range([innerHeight, 0])
         .nice();
-      
-      // Create group for translating margins
+
       const g = svg.append('g')
         .attr('transform', `translate(${margin.left}, ${margin.top})`);
-      
-      // Create axes
-      const xAxis = d3.axisBottom(xScale)
-        .ticks(5);
-        
-      const yAxis = d3.axisLeft(yScale)
-        .ticks(5);
-      
-      // Add axes to chart
+
+      // Adiciona eixos
       g.append('g')
         .attr('transform', `translate(0, ${innerHeight})`)
-        .call(xAxis)
+        .call(d3.axisBottom(xScale).ticks(5))
         .attr('class', 'axis x-axis');
         
       g.append('g')
-        .call(yAxis)
+        .call(d3.axisLeft(yScale).ticks(5))
         .attr('class', 'axis y-axis');
-      
-      // Add axes labels
+
+      // Rótulos dos eixos
       g.append('text')
         .attr('x', innerWidth / 2)
         .attr('y', innerHeight + 40)
         .attr('text-anchor', 'middle')
-        .attr('fill', 'currentColor')
-        .attr('font-size', '0.875rem')
         .text('Potencial de Geração de Leads');
         
       g.append('text')
@@ -74,155 +62,93 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .attr('x', -innerHeight / 2)
         .attr('y', -40)
         .attr('text-anchor', 'middle')
-        .attr('fill', 'currentColor')
-        .attr('font-size', '0.875rem')
         .text('Potencial de Investimento');
-      
-      // Add quadrant lines
+
+      // Linhas do quadrante
       g.append('line')
         .attr('x1', xScale(2.5))
         .attr('y1', 0)
         .attr('x2', xScale(2.5))
         .attr('y2', innerHeight)
-        .attr('stroke', 'gray')
-        .attr('stroke-dasharray', '5,5')
-        .attr('stroke-width', 1);
+        .attr('class', 'quadrant-line');
         
       g.append('line')
         .attr('x1', 0)
         .attr('y1', yScale(2.5))
         .attr('x2', innerWidth)
         .attr('y2', yScale(2.5))
-        .attr('stroke', 'gray')
-        .attr('stroke-dasharray', '5,5')
-        .attr('stroke-width', 1);
-      
-      // Add quadrant labels
-      const quadLabels = [
-        { text: "Baixo Lead, Baixo Investimento", x: xScale(1.25), y: yScale(1.25) },
-        { text: "Alto Lead, Baixo Investimento", x: xScale(3.75), y: yScale(1.25) },
-        { text: "Baixo Lead, Alto Investimento", x: xScale(1.25), y: yScale(3.75) },
-        { text: "Alto Lead, Alto Investimento", x: xScale(3.75), y: yScale(3.75) }
-      ];
-      
-      g.selectAll('.quadrant-label')
-        .data(quadLabels)
-        .enter()
-        .append('text')
-        .attr('class', 'quadrant-label')
-        .attr('x', d => d.x)
-        .attr('y', d => d.y)
-        .attr('text-anchor', 'middle')
-        .attr('fill', 'gray')
-        .attr('font-size', '0.75rem')
-        .text(d => d.text);
-      
-      // Create tooltip
+        .attr('class', 'quadrant-line');
+
+      // Tooltip
       const tooltip = d3.select(tooltipRef.current)
         .style('position', 'absolute')
         .style('visibility', 'hidden')
-        .style('background-color', 'white')
-        .style('border', '1px solid #ddd')
+        .style('background', 'white')
+        .style('padding', '8px')
         .style('border-radius', '4px')
-        .style('padding', '10px')
-        .style('box-shadow', '0 2px 4px rgba(0, 0, 0, 0.1)')
-        .style('z-index', '10')
-        .style('pointer-events', 'none');
-      
-      // Calculate positions using the formula
-      const partnersWithPositions = partners.map(partner => {
-        const position = calculateChartPosition(partner);
-        return {
-          ...partner,
-          calculatedX: position.x,
-          calculatedY: position.y
-        };
-      });
-      
-      // Add points
-      const points = g.selectAll('.partner-point')
+        .style('box-shadow', '0 2px 4px rgba(0,0,0,0.1)');
+
+      // Processamento dos dados
+      const partnersWithPositions = partners.map(partner => ({
+        ...partner,
+        ...calculateChartPosition(partner)
+      }));
+
+      // Desenha pontos
+      g.selectAll('.partner-point')
         .data(partnersWithPositions)
         .enter()
         .append('circle')
         .attr('class', 'partner-point')
         .attr('cx', d => xScale(d.calculatedX))
         .attr('cy', d => yScale(d.calculatedY))
-        .attr('r', d => 5 + Number(d.engagement) * 2)
+        .attr('r', d => 5 + d.engagement * 2)  // engagement agora é number
         .attr('fill', d => sizeColorMap[d.size])
         .attr('stroke', 'white')
-        .attr('stroke-width', 1.5)
         .style('cursor', 'pointer')
-        .style('opacity', 0.8)
         .on('mouseover', function(event, d) {
-          d3.select(this)
-            .style('opacity', 1)
-            .attr('stroke-width', 2);
-            
+          d3.select(this).raise();
           tooltip
             .style('visibility', 'visible')
             .html(`
-              <div class="font-semibold">${d.name}</div>
+              <div class="font-bold">${d.name}</div>
               <div>Tamanho: ${d.size}</div>
               <div>Engajamento: ${d.engagement}</div>
               <div>Lead: ${d.leadPotential}</div>
               <div>Investimento: ${d.investmentPotential}</div>
-              <div>Alinhamento: ${d.strategicAlignment || '0'}</div>
-              <div class="mt-1 text-xs text-gray-500">Score: X=${d.calculatedX.toFixed(1)}, Y=${d.calculatedY.toFixed(1)}</div>
+              ${d.strategicAlignment ? `<div>Alinhamento: ${d.strategicAlignment}</div>` : ''}
             `);
         })
-        .on('mousemove', function(event) {
+        .on('mousemove', (event) => {
           tooltip
-            .style('top', (event.pageY - 10) + 'px')
-            .style('left', (event.pageX + 10) + 'px');
+            .style('left', `${event.pageX + 10}px`)
+            .style('top', `${event.pageY - 10}px`);
         })
-        .on('mouseout', function() {
-          d3.select(this)
-            .style('opacity', 0.8)
-            .attr('stroke-width', 1.5);
-            
-          tooltip.style('visibility', 'hidden');
-        })
-        .on('click', (_, d) => {
-          onSelectPartner(d);
-        });
-      
-      // Add labels for points
+        .on('mouseout', () => tooltip.style('visibility', 'hidden'))
+        .on('click', (_, d) => onSelectPartner(d));
+
+      // Labels dos pontos
       g.selectAll('.partner-label')
         .data(partnersWithPositions)
         .enter()
         .append('text')
         .attr('class', 'partner-label')
         .attr('x', d => xScale(d.calculatedX))
-        .attr('y', d => yScale(d.calculatedY) - 10 - Number(d.engagement))
+        .attr('y', d => yScale(d.calculatedY) - 15)
         .attr('text-anchor', 'middle')
-        .attr('fill', 'currentColor')
-        .attr('font-size', '0.75rem')
-        .attr('pointer-events', 'none')
         .text(d => d.name);
     };
-    
-    // Create chart initially and add resize listener
+
     createChart();
+    window.addEventListener('resize', createChart);
     
-    const handleResize = () => {
-      createChart();
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('resize', createChart);
   }, [partners, onSelectPartner]);
-  
+
   return (
     <div className="relative w-full h-full">
-      <svg
-        ref={svgRef}
-        className="w-full h-full"
-        style={{ minHeight: '400px' }}
-      />
-      <div ref={tooltipRef} />
+      <svg ref={svgRef} className="w-full h-full" />
+      <div ref={tooltipRef} className="tooltip" />
     </div>
   );
 };
