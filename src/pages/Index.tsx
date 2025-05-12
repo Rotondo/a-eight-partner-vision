@@ -6,7 +6,7 @@ import QuadrantChart from '@/components/QuadrantChart';
 import CalculationModal from '@/components/CalculationModal';
 import { Partner, defaultPartner } from '@/types/partner';
 import { toast } from '@/components/ui/sonner';
-import { getPartners, savePartner, updatePartner } from '@/services/partnerService';
+import { getPartners, savePartner, updatePartner, deletePartner } from '@/services/partnerService';
 
 const Index = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -44,8 +44,28 @@ const Index = () => {
         const newPartner = await savePartner(partner);
         setPartners(prevPartners => [...prevPartners, newPartner]);
       }
+      
+      // Reset form
+      setCurrentPartner({...defaultPartner});
+      setIsEditing(false);
     } catch (error) {
       console.error("Failed to save partner:", error);
+      // Error toasts are already shown in service functions
+    }
+  };
+  
+  const handleDeletePartner = async (id: string) => {
+    try {
+      await deletePartner(id);
+      setPartners(prevPartners => prevPartners.filter(p => p.id !== id));
+      
+      // If we're editing the partner that was just deleted, reset the form
+      if (currentPartner.id === id) {
+        setCurrentPartner({...defaultPartner});
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error("Failed to delete partner:", error);
       // Error toasts are already shown in service functions
     }
   };
@@ -58,6 +78,7 @@ const Index = () => {
   
   const clearForm = () => {
     setCurrentPartner({...defaultPartner});
+    setIsEditing(false);
   };
   
   return (
@@ -84,6 +105,7 @@ const Index = () => {
               partner={currentPartner}
               setPartner={setCurrentPartner}
               onSave={handleSavePartner}
+              onDelete={handleDeletePartner}
               isEditing={isEditing}
               setIsEditing={setIsEditing}
               clearForm={clearForm}

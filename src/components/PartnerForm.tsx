@@ -7,11 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Partner, companySize, potentialOptions, engagementOptions, strategicAlignmentOptions, defaultPartner } from '@/types/partner';
 import { validatePartnerForm } from '@/lib/form-utils';
 import { toast } from '@/components/ui/sonner';
+import { Trash2 } from 'lucide-react';
 
 interface PartnerFormProps {
   partner: Partner;
   setPartner: React.Dispatch<React.SetStateAction<Partner>>;
   onSave: (partner: Partner) => void;
+  onDelete: (id: string) => void;
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   clearForm: () => void;
@@ -21,6 +23,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
   partner,
   setPartner,
   onSave,
+  onDelete,
   isEditing,
   setIsEditing,
   clearForm
@@ -30,18 +33,17 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
     
     if (validatePartnerForm(partner)) {
       onSave(partner);
-      clearForm();
-      if (isEditing) {
-        toast.success("Parceiro atualizado com sucesso");
-        setIsEditing(false);
-      } else {
-        toast.success("Parceiro adicionado com sucesso");
-      }
     }
   };
 
   const handleInputChange = (field: keyof Partner, value: string) => {
     setPartner(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleDelete = () => {
+    if (partner.id && confirm("Tem certeza que deseja excluir este parceiro?")) {
+      onDelete(partner.id);
+    }
   };
 
   return (
@@ -152,7 +154,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
         </Select>
       </div>
 
-      <div className="pt-2">
+      <div className="pt-2 space-y-2">
         <Button
           type="submit"
           className="w-full bg-corporate-blue hover:bg-opacity-90"
@@ -161,17 +163,27 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
         </Button>
         
         {isEditing && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              clearForm();
-              setIsEditing(false);
-            }}
-            className="w-full mt-2"
-          >
-            Cancelar
-          </Button>
+          <>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={clearForm}
+                className="w-full"
+              >
+                Cancelar
+              </Button>
+              
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleDelete}
+                className="flex-shrink-0"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </>
         )}
       </div>
     </form>
