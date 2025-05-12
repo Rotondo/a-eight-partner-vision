@@ -118,29 +118,18 @@ const Index = () => {
               </SidebarContent>
             </Sidebar>
             
-            {/* Right Panel - Chart */}
-            <SidebarInset className="flex-1">
-              <div className="bg-white rounded-lg shadow-md p-6 h-full">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-corporate-blue">
-                    Visualização Estratégica
-                  </h2>
-                  <CalculationModal />
-                </div>
-                <div className="h-[calc(100%-80px)]">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center h-full">
-                      <p className="text-gray-500">Carregando parceiros...</p>
-                    </div>
-                  ) : (
-                    <QuadrantChart
-                      partners={partners}
-                      onSelectPartner={handleSelectPartner}
-                    />
-                  )}
-                </div>
-              </div>
-            </SidebarInset>
+<div className="h-[70vh] w-full flex-1 flex items-center justify-center">
+  {isLoading ? (
+    <div className="flex items-center justify-center h-full">
+      <p className="text-gray-500">Carregando parceiros...</p>
+    </div>
+  ) : (
+    <QuadrantChart
+      partners={partners}
+      onSelectPartner={handleSelectPartner}
+    />
+  )}
+</div>
           </div>
         </main>
         
