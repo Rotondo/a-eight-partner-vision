@@ -148,7 +148,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
     // 9. Criar grupo para os rótulos fixos (que não se sobrepõem)
     const fixedLabels = g.append('g').attr('class', 'fixed-labels');
     
-        // 10. Criar grupo para os rótulos de hover (que se sobrepõem)
+    // 10. Criar grupo para os rótulos de hover (que se sobrepõem)
     const hoverLabels = g.append('g').attr('class', 'hover-labels').style('opacity', 0);
     
     // 11. Adicionar os rótulos fixos (que não têm sobreposição)
