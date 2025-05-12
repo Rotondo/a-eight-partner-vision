@@ -97,10 +97,13 @@ const Index = () => {
         
         {/* Main Content */}
         <main className="flex-grow container mx-auto p-4">
-          <div className="flex gap-6">
+          <div className="flex gap-6 h-[calc(100vh-160px)]">
             {/* Left Panel - Form (Sidebar) */}
             <Sidebar collapsible="offcanvas" className="lg:w-80">
-              <SidebarContent className="bg-white rounded-lg shadow-md p-6 h-full">
+              <SidebarContent className="bg-white rounded-lg shadow-md p-6 h-full relative">
+                <div className="absolute top-4 right-4">
+                  <SidebarTrigger />
+                </div>
                 <h2 className="text-xl font-semibold mb-6 text-corporate-blue">
                   {isEditing ? "Editar Parceiro" : "Novo Parceiro"}
                 </h2>
@@ -117,17 +120,14 @@ const Index = () => {
             
             {/* Right Panel - Chart */}
             <SidebarInset className="flex-1">
-              <div className="bg-white rounded-lg shadow-md p-6 h-[70vh]">
+              <div className="bg-white rounded-lg shadow-md p-6 h-full">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-semibold text-corporate-blue">
                     Visualização Estratégica
                   </h2>
-                  <div className="flex gap-2">
-                    <CalculationModal />
-                    <SidebarTrigger className="hidden lg:inline-flex" />
-                  </div>
+                  <CalculationModal />
                 </div>
-                <div className="h-full">
+                <div className="h-[calc(100%-80px)]">
                   {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                       <p className="text-gray-500">Carregando parceiros...</p>
@@ -145,7 +145,7 @@ const Index = () => {
         </main>
         
         {/* Footer */}
-        <footer className="bg-white shadow-inner p-4 mt-8">
+        <footer className="bg-white shadow-inner p-4 mt-auto">
           <div className="container mx-auto text-center text-sm text-gray-600">
             <p>&copy; {new Date().getFullYear()} A&eight - Quadrante de Parceiros</p>
           </div>
