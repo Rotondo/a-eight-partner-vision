@@ -1,17 +1,20 @@
+// src/types/partner.ts
 
+// Interface principal do parceiro, usando tipos corretos
 export interface Partner {
   id?: string;
   name: string;
-  leadPotential: string;
-  investmentPotential: string;
-  size: string;
-  engagement: string;
-  strategicAlignment?: string; // Added strategic alignment
+  leadPotential: number;          // Agora é number
+  investmentPotential: number;    // Agora é number
+  size: 'PP' | 'P' | 'M' | 'G' | 'GG';
+  engagement: number;             // Agora é number
+  strategicAlignment?: number;    // Opcional, mas number
 }
 
-export const companySize = ["PP", "P", "M", "G", "GG"];
+// Opções para seleção nos formulários
+export const companySize = ["PP", "P", "M", "G", "GG"] as const;
 
-export const sizeColorMap: Record<string, string> = {
+export const sizeColorMap: Record<Partner["size"], string> = {
   PP: "#FF6B6B",
   P: "#FFD93D",
   M: "#6BCB77",
@@ -19,17 +22,16 @@ export const sizeColorMap: Record<string, string> = {
   GG: "#9B59B6"
 };
 
-export const potentialOptions = ["0", "1", "2", "3", "4", "5"];
+export const potentialOptions = [0, 1, 2, 3, 4, 5];
+export const engagementOptions = [0, 1, 2, 3, 4, 5];
+export const strategicAlignmentOptions = [0, 1, 2, 3, 4, 5];
 
-export const engagementOptions = ["0", "1", "2", "3", "4", "5"];
-
-export const strategicAlignmentOptions = ["0", "1", "2", "3", "4", "5"]; // Added options for strategic alignment
-
+// Valor padrão para um novo parceiro
 export const defaultPartner: Partner = {
   name: "",
-  leadPotential: "0",
-  investmentPotential: "0",
+  leadPotential: 0,
+  investmentPotential: 0,
   size: "PP",
-  engagement: "0",
-  strategicAlignment: "0" // Added default value
+  engagement: 0,
+  strategicAlignment: 0
 };
