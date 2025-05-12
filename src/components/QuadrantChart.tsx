@@ -222,7 +222,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
   }, [partners, onSelectPartner]);
 
 return (
-  <div className="w-full h-full min-h-[400px] flex-1 flex items-center justify-center">
+  <div className="w-full h-full">
     <svg ref={svgRef} className="w-full h-full" />
     <div ref={tooltipRef} className="absolute hidden bg-white p-2 rounded shadow-md text-sm z-10" />
   </div>
