@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Logo from '@/components/Logo';
 import PartnerForm from '@/components/PartnerForm';
-import QuadrantChart from '@/components/QuadrantChartNovo';
+import QuadrantChart from '@/components/QuadrantChart';
 import CalculationModal from '@/components/CalculationModal';
 import { Partner, defaultPartner } from '@/types/partner';
 import { toast } from '@/components/ui/sonner';
