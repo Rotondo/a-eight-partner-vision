@@ -29,18 +29,41 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validação numérica adicional
+    const numericFieldsValid = [
+      partner.leadPotential,
+      partner.investmentPotential,
+      partner.engagement,
+      partner.strategicAlignment || 0
+    ].every(value => !isNaN(value) && value >= 0 && value <= 5);
+
+    if (!numericFieldsValid) {
+      toast.error("Valores numéricos devem estar entre 0 e 5");
+      return;
+    }
+
     if (validatePartnerForm(partner)) {
       onSave(partner);
     }
   };
 
-  // Agora todos os campos numéricos são tratados como number
+  // Conversão robusta para números
   const handleInputChange = (field: keyof Partner, value: string | number) => {
+    const numericFields = [
+      'leadPotential', 
+      'investmentPotential', 
+      'engagement', 
+      'strategicAlignment'
+    ];
+
+    const newValue = numericFields.includes(field)
+      ? Number(value.toString().replace(/[^0-9.]/g, '')) || 0
+      : value;
+
     setPartner(prev => ({
       ...prev,
-      [field]: (field === 'leadPotential' || field === 'investmentPotential' || field === 'engagement' || field === 'strategicAlignment')
-        ? Number(value)
-        : value
+      [field]: newValue
     }));
   };
 
@@ -60,46 +83,42 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
           onChange={(e) => handleInputChange('name', e.target.value)}
           placeholder="Nome do parceiro"
           className="w-full"
+          required
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="leadPotential">Potencial de Geração de Leads</Label>
-        <Select
-          value={partner.leadPotential.toString()}
-          onValueChange={(value) => handleInputChange('leadPotential', value)}
-        >
-          <SelectTrigger id="leadPotential" className="w-full">
-            <SelectValue placeholder="Selecione" />
-          </SelectTrigger>
-          <SelectContent>
-            {potentialOptions.map((option) => (
-              <SelectItem key={option} value={option.toString()}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="investmentPotential">Potencial de Investimento</Label>
-        <Select
-          value={partner.investmentPotential.toString()}
-          onValueChange={(value) => handleInputChange('investmentPotential', value)}
-        >
-          <SelectTrigger id="investmentPotential" className="w-full">
-            <SelectValue placeholder="Selecione" />
-          </SelectTrigger>
-          <SelectContent>
-            {potentialOptions.map((option) => (
-              <SelectItem key={option} value={option.toString()}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Campos numéricos com validação visual */}
+      {['leadPotential', 'investmentPotential', 'engagement'].map((field) => (
+        <div className="space-y-2" key={field}>
+          <Label htmlFor={field}>{{
+            leadPotential: 'Potencial de Geração de Leads',
+            investmentPotential: 'Potencial de Investimento',
+            engagement: 'Engajamento'
+          }[field]}</Label>
+          <Select
+            value={partner[field as keyof Partner]?.toString()}
+            onValueChange={(value) => handleInputChange(field as keyof Partner, value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={`Selecione ${field}`} />
+            </SelectTrigger>
+            <SelectContent>
+              {potentialOptions.map((option) => (
+                <SelectItem 
+                  key={option} 
+                  value={option.toString()}
+                  className="flex justify-between"
+                >
+                  <span>{option}</span>
+                  <span className="text-muted-foreground ml-2">
+                    ({['leadPotential', 'investmentPotential'].includes(field) ? 'Prioridade' : 'Nível'} {option})
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ))}
 
       <div className="space-y-2">
         <Label htmlFor="size">Tamanho da Empresa</Label>
@@ -107,32 +126,18 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
           value={partner.size}
           onValueChange={(value) => handleInputChange('size', value)}
         >
-          <SelectTrigger id="size" className="w-full">
-            <SelectValue placeholder="Selecione" />
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione o tamanho" />
           </SelectTrigger>
           <SelectContent>
             {companySize.map((size) => (
-              <SelectItem key={size} value={size}>
+              <SelectItem 
+                key={size} 
+                value={size}
+                className="flex items-center gap-2"
+              >
+                <span className="size-2 rounded-full bg-current" />
                 {size}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="engagement">Engajamento</Label>
-        <Select
-          value={partner.engagement.toString()}
-          onValueChange={(value) => handleInputChange('engagement', value)}
-        >
-          <SelectTrigger id="engagement" className="w-full">
-            <SelectValue placeholder="Selecione" />
-          </SelectTrigger>
-          <SelectContent>
-            {engagementOptions.map((option) => (
-              <SelectItem key={option} value={option.toString()}>
-                {option}
               </SelectItem>
             ))}
           </SelectContent>
@@ -142,16 +147,20 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
       <div className="space-y-2">
         <Label htmlFor="strategicAlignment">Alinhamento Estratégico</Label>
         <Select
-          value={partner.strategicAlignment?.toString() || "0"}
+          value={(partner.strategicAlignment || 0).toString()}
           onValueChange={(value) => handleInputChange('strategicAlignment', value)}
         >
-          <SelectTrigger id="strategicAlignment" className="w-full">
-            <SelectValue placeholder="Selecione" />
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione o alinhamento" />
           </SelectTrigger>
           <SelectContent>
             {strategicAlignmentOptions.map((option) => (
-              <SelectItem key={option} value={option.toString()}>
-                {option}
+              <SelectItem 
+                key={option} 
+                value={option.toString()}
+                className={option >= 3 ? 'bg-green-50' : 'bg-red-50'}
+              >
+                {option} {option >= 3 ? '🌟' : '⚠️'}
               </SelectItem>
             ))}
           </SelectContent>
@@ -162,6 +171,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
         <Button
           type="submit"
           className="w-full bg-corporate-blue hover:bg-opacity-90"
+          disabled={!validatePartnerForm(partner)}
         >
           {isEditing ? "Salvar Edições" : "Adicionar Parceiro"}
         </Button>
