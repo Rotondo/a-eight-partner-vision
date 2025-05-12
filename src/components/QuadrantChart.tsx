@@ -15,7 +15,6 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
   useEffect(() => {
     if (!svgRef.current || partners.length === 0) return;
 
-    // Configurações do gráfico
     const width = svgRef.current.clientWidth;
     const height = svgRef.current.clientHeight;
     const { 
@@ -28,15 +27,12 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       quadrantLabels 
     } = getChartConfig(width, height);
 
-    // Limpa o SVG antes de redesenhar
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
-    // Cria grupo principal
     const g = svg.append('g')
       .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-    // 1. Desenha linhas do quadrante
     quadrantLines.forEach(line => {
       g.append('line')
         .attr('x1', line.x1)
@@ -47,7 +43,6 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .attr('stroke-dasharray', '4 2');
     });
 
-    // 2. Adiciona rótulos dos quadrantes
     quadrantLabels.forEach(label => {
       g.append('text')
         .attr('x', label.x)
@@ -59,7 +54,6 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .text(label.text);
     });
 
-    // 3. Legenda de cores
     const legendData = [
       { label: 'PP', color: sizeColorMap['PP'] },
       { label: 'P', color: sizeColorMap['P'] },
@@ -87,18 +81,15 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .text(item.label);
     });
 
-    // 4. Configuração do tooltip
     const tooltip = d3.select(tooltipRef.current)
       .attr('class', 'absolute bg-white p-2 rounded shadow-md text-sm z-10 pointer-events-none')
       .style('display', 'none');
 
-    // 5. Calcula posições dos parceiros
     const partnersWithPositions = partners.map(partner => ({
       ...partner,
       ...calculateChartPosition(partner)
     }));
 
-    // 6. Desenha pontos dos parceiros
     const points = g.selectAll('.partner-point')
       .data(partnersWithPositions)
       .enter()
@@ -107,13 +98,12 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y))
       .attr('r', 5)
-      .attr('fill', d => sizeColorMap[d.size])
+      .attr('fill', d => d.size === 'GG' ? '#FF46A2' : sizeColorMap[d.size])
       .attr('stroke', 'white')
       .attr('stroke-width', 1.5)
       .style('cursor', 'pointer')
       .on('click', (_, d) => onSelectPartner(d));
 
-    // 7. Preparar dados para os rótulos com offsets
     const labelPadding = 10;
     const labelData = partnersWithPositions.map(d => ({
       ...d,
@@ -123,7 +113,6 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       height: 16
     }));
 
-    // 8. Detectar sobreposições
     const overlapping = new Set<number>();
     for (let i = 0; i < labelData.length; i++) {
       const a = labelData[i];
@@ -139,13 +128,9 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       }
     }
 
-    // 9. Criar grupo para os rótulos fixos (que não se sobrepõem)
     const fixedLabels = g.append('g').attr('class', 'fixed-labels');
-    
-    // 10. Criar grupo para os rótulos de hover (que se sobrepõem)
     const hoverLabels = g.append('g').attr('class', 'hover-labels').style('opacity', 0);
 
-    // 11. Adicionar os rótulos fixos (que não têm sobreposição)
     labelData.forEach((d, i) => {
       if (!overlapping.has(i)) {
         fixedLabels.append('text')
@@ -160,7 +145,6 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       }
     });
 
-    // 12. Configurar interação de hover para mostrar rótulos sobrepostos
     points.on('mouseover', function(event, d) {
       const i = labelData.findIndex(item => item.id === d.id);
       d3.select(this)
@@ -218,7 +202,6 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       tooltip.style('display', 'none');
     });
 
-    // 13. Adiciona títulos dos eixos
     g.append('text')
       .attr('x', innerWidth / 2)
       .attr('y', innerHeight + 30)
@@ -235,7 +218,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       .attr('fill', '#64748b')
       .attr('font-size', '0.9rem')
       .text('Potencial de Investimento');
-      
+
   }, [partners, onSelectPartner]);
 
   return (
