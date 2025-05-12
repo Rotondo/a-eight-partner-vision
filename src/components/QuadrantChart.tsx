@@ -1,3 +1,4 @@
+// src/components/QuadrantChart.tsx
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { Partner, sizeColorMap } from '@/types/partner';
@@ -124,7 +125,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
     }));
 
     // 8. Detectar sobreposições
-    const overlapping = new Set();
+    const overlapping = new Set<number>();
     for (let i = 0; i < labelData.length; i++) {
       const a = labelData[i];
       for (let j = i + 1; j < labelData.length; j++) {
