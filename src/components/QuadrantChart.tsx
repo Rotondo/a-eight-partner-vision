@@ -60,7 +60,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .text(label.text);
     });
 
-    // 3. Legenda de cores para tamanhos das empresas
+    // 3. Legenda de cores
     const legendData = [
       { label: 'PP', color: sizeColorMap['PP'] },
       { label: 'P', color: sizeColorMap['P'] },
@@ -90,7 +90,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
 
     // 4. Configuração do tooltip
     const tooltip = d3.select(tooltipRef.current)
-      .attr('class', 'absolute bg-white p-2 rounded shadow-md text-sm z-10 pointer-events-none hidden');
+      .attr('class', 'absolute bg-white p-2 rounded shadow-md text-sm z-10 pointer-events-none');
 
     // 5. Calcula posições dos parceiros
     const partnersWithPositions = partners.map(partner => ({
@@ -99,7 +99,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
     }));
 
     // 6. Desenha pontos dos parceiros
-    g.selectAll('.partner-point')
+    const points = g.selectAll('.partner-point')
       .data(partnersWithPositions)
       .enter()
       .append('circle')
@@ -111,106 +111,41 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       .attr('stroke', 'white')
       .attr('stroke-width', 1.5)
       .style('cursor', 'pointer')
-      .on('mouseover', function(event, d) {
-        // Aumenta o tamanho e destaca o ponto
-        d3.select(this)
-          .transition()
-          .duration(150)
-          .attr('r', 8)
-          .attr('stroke-width', 2);
-
-        // Mostra o tooltip
-        tooltip
-          .html(`
-            <div class="font-semibold">${d.name}</div>
-            <div>Tamanho: ${d.size}</div>
-            <div>Lead: ${d.leadPotential}</div>
-            <div>Investimento: ${d.investmentPotential}</div>
-            <div>Engajamento: ${d.engagement}</div>
-          `)
-          .style('left', `${event.pageX + 10}px`)
-          .style('top', `${event.pageY - 10}px`)
-          .classed('hidden', false);
-      })
-      .on('mousemove', function(event) {
-        // Atualiza posição do tooltip ao mover o mouse
-        tooltip
-          .style('left', `${event.pageX + 10}px`)
-          .style('top', `${event.pageY - 10}px`);
-      })
-      .on('mouseout', function() {
-        // Restaura o tamanho original do ponto
-        d3.select(this)
-          .transition()
-          .duration(150)
-          .attr('r', 5)
-          .attr('stroke-width', 1.5);
-
-        // Esconde o tooltip
-        tooltip.classed('hidden', true);
-      })
       .on('click', (_, d) => onSelectPartner(d));
 
-    // 7. Desenha os nomes dos parceiros próximos aos pontos (com offset para evitar sobreposição)
-    const labelOffset = 10;
+    // 7. Preparar dados para os rótulos com offsets
+    const labelPadding = 10;
+    const labelData = partnersWithPositions.map(d => ({
+      ...d,
+      labelX: xScale(d.x) + labelPadding,
+      labelY: yScale(d.y) - labelPadding,
+      width: d.name.length * 5.5, // Estimativa de largura baseada no comprimento do texto
+      height: 16 // Altura estimada do texto
+    }));
+
+    // 8. Detectar sobreposições
+    const overlapping = new Set();
     
-    g.selectAll('.partner-label')
-      .data(partnersWithPositions)
-      .enter()
-      .append('text')
-      .attr('class', 'partner-label')
-      .attr('x', d => xScale(d.x) + labelOffset)
-      .attr('y', d => yScale(d.y) - labelOffset)
-      .attr('text-anchor', 'start')
-      .attr('dominant-baseline', 'middle')
-      .attr('font-size', '0.75rem')
-      .attr('fill', '#22223b')
-      .attr('pointer-events', 'none') // Permite cliques nos pontos por baixo do texto
-      .attr('stroke', 'white')  // Contorno branco para melhor legibilidade
-      .attr('stroke-width', '0.3px')
-      .attr('paint-order', 'stroke')
-      .text(d => d.name);
-
-    // 8. Adiciona eixos X e Y
-    g.append('text')
-      .attr('x', innerWidth / 2)
-      .attr('y', innerHeight + 30)
-      .attr('text-anchor', 'middle')
-      .attr('fill', '#64748b')
-      .attr('font-size', '0.9rem')
-      .text('Potencial de Geração de Leads');
-
-    g.append('text')
-      .attr('transform', 'rotate(-90)')
-      .attr('x', -innerHeight / 2)
-      .attr('y', -40)
-      .attr('text-anchor', 'middle')
-      .attr('fill', '#64748b')
-      .attr('font-size', '0.9rem')
-      .text('Potencial de Investimento');
-
-  }, [partners, onSelectPartner]);
-
-  // Função para redimensionar o gráfico quando a janela mudar de tamanho
-  useEffect(() => {
-    const handleResize = () => {
-      if (svgRef.current && partners.length > 0) {
-        // Força o redesenho do gráfico
-        const event = new Event('resize');
-        window.dispatchEvent(event);
+    // Compara cada par de rótulos para detectar sobreposição
+    for (let i = 0; i < labelData.length; i++) {
+      const a = labelData[i];
+      for (let j = i + 1; j < labelData.length; j++) {
+        const b = labelData[j];
+        
+        // Verificar se os retângulos dos rótulos se sobrepõem
+        if (a.labelX < b.labelX + b.width &&
+            a.labelX + a.width > b.labelX &&
+            a.labelY < b.labelY + b.height &&
+            a.labelY + a.height > b.labelY) {
+          // Ambos os rótulos estão sobrepostos
+          overlapping.add(i);
+          overlapping.add(j);
+        }
       }
-    };
+    }
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [partners]);
-
-  return (
-    <div className="relative w-full h-full">
-      <svg ref={svgRef} className="w-full h-full" />
-      <div ref={tooltipRef} className="absolute hidden bg-white p-2 rounded shadow-md text-sm z-10" />
-    </div>
-  );
-};
-
-export default QuadrantChart;
+    // 9. Criar grupo para os rótulos fixos (que não se sobrepõem)
+    const fixedLabels = g.append('g').attr('class', 'fixed-labels');
+    
+    // 10. Criar grupo para os rótulos de hover (que se sobrepõem)
+    const hoverLabels
