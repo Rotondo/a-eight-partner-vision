@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Logo from '@/components/Logo';
 import PartnerForm from '@/components/PartnerForm';
@@ -33,45 +32,45 @@ const Index = () => {
   
   const handleSavePartner = async (partner: Partner) => {
     try {
+      let updatedPartners;
+      
       if (isEditing && partner.id) {
-        // Update existing partner
         const updatedPartner = await updatePartner(partner);
-        setPartners(prevPartners => 
-          prevPartners.map(p => p.id === updatedPartner.id ? updatedPartner : p)
-        );
+        updatedPartners = partners.map(p => p.id === updatedPartner.id ? updatedPartner : p);
       } else {
-        // Add new partner
         const newPartner = await savePartner(partner);
-        setPartners(prevPartners => [...prevPartners, newPartner]);
+        updatedPartners = [...partners, newPartner];
       }
       
-      // Reset form
-      setCurrentPartner({...defaultPartner});
-      setIsEditing(false);
+      setPartners(updatedPartners);
+      clearForm();
+      toast.success(isEditing ? "Parceiro atualizado!" : "Parceiro adicionado!");
+      
     } catch (error) {
       console.error("Failed to save partner:", error);
-      // Error toasts are already shown in service functions
+      toast.error("Erro ao salvar parceiro");
     }
   };
   
   const handleDeletePartner = async (id: string) => {
     try {
       await deletePartner(id);
-      setPartners(prevPartners => prevPartners.filter(p => p.id !== id));
+      const updatedPartners = partners.filter(p => p.id !== id);
+      setPartners(updatedPartners);
       
-      // If we're editing the partner that was just deleted, reset the form
       if (currentPartner.id === id) {
-        setCurrentPartner({...defaultPartner});
-        setIsEditing(false);
+        clearForm();
       }
+      
+      toast.success("Parceiro excluído!");
     } catch (error) {
       console.error("Failed to delete partner:", error);
-      // Error toasts are already shown in service functions
+      toast.error("Erro ao excluir parceiro");
     }
   };
   
   const handleSelectPartner = (partner: Partner) => {
-    setCurrentPartner({...partner});
+    setCurrentPartner(partner);
     setIsEditing(true);
     toast.info("Parceiro selecionado para edição");
   };
@@ -97,9 +96,9 @@ const Index = () => {
       <main className="flex-grow container mx-auto p-4">
         <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
           {/* Left Panel - Form */}
-          <div className="lg:col-span-3 bg-white rounded-lg shadow-md p-6 animate-fade-in h-full">
+          <div className="lg:col-span-3 bg-white rounded-lg shadow-md p-6 h-full">
             <h2 className="text-xl font-semibold mb-6 text-corporate-blue">
-              {isEditing ? "Editar Parceiro" : "Adicionar Novo Parceiro"}
+              {isEditing ? "Editar Parceiro" : "Novo Parceiro"}
             </h2>
             <PartnerForm
               partner={currentPartner}
@@ -107,16 +106,15 @@ const Index = () => {
               onSave={handleSavePartner}
               onDelete={handleDeletePartner}
               isEditing={isEditing}
-              setIsEditing={setIsEditing}
               clearForm={clearForm}
             />
           </div>
           
           {/* Right Panel - Chart */}
-          <div className="lg:col-span-7 bg-white rounded-lg shadow-md p-6 animate-fade-in h-[70vh]">
+          <div className="lg:col-span-7 bg-white rounded-lg shadow-md p-6 h-[70vh]">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-corporate-blue">
-                Quadrante de Parceiros
+                Visualização Estratégica
               </h2>
               <CalculationModal />
             </div>
