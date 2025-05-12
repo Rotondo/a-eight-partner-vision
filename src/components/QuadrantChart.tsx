@@ -1,7 +1,8 @@
+// src/components/QuadrantChart.tsx
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { Partner, sizeColorMap } from '@/types/partner';
-import { calculateChartPosition } from '@/lib/form-utils';
+import { getChartConfig, calculateChartPosition } from '@/lib/form-utils';
 
 interface QuadrantChartProps {
   partners: Partner[];
@@ -11,144 +12,79 @@ interface QuadrantChartProps {
 const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     if (!svgRef.current || partners.length === 0) return;
-    
-    const createChart = () => {
-      d3.select(svgRef.current).selectAll('*').remove();
-      
-      const svg = d3.select(svgRef.current);
-      const width = svgRef.current.clientWidth;
-      const height = svgRef.current.clientHeight;
-      const margin = { top: 40, right: 40, bottom: 60, left: 60 };
-      
-      const innerWidth = width - margin.left - margin.right;
-      const innerHeight = height - margin.top - margin.bottom;
-      
-      // Configuração das escalas
-      const xScale = d3.scaleLinear()
-        .domain([0, 5])
-        .range([0, innerWidth])
-        .nice();
-        
-      const yScale = d3.scaleLinear()
-        .domain([0, 5])
-        .range([innerHeight, 0])
-        .nice();
 
-      const g = svg.append('g')
-        .attr('transform', `translate(${margin.left}, ${margin.top})`);
+    // Configurações do gráfico
+    const width = svgRef.current.clientWidth;
+    const height = svgRef.current.clientHeight;
+    const { 
+      margin, 
+      innerWidth, 
+      innerHeight, 
+      xScale, 
+      yScale, 
+      quadrantLines, 
+      quadrantLabels 
+    } = getChartConfig(width, height);
 
-      // Adiciona eixos
-      g.append('g')
-        .attr('transform', `translate(0, ${innerHeight})`)
-        .call(d3.axisBottom(xScale).ticks(5))
-        .attr('class', 'axis x-axis');
-        
-      g.append('g')
-        .call(d3.axisLeft(yScale).ticks(5))
-        .attr('class', 'axis y-axis');
+    // Limpa o SVG antes de redesenhar
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove();
 
-      // Rótulos dos eixos
-      g.append('text')
-        .attr('x', innerWidth / 2)
-        .attr('y', innerHeight + 40)
-        .attr('text-anchor', 'middle')
-        .text('Potencial de Geração de Leads');
-        
-      g.append('text')
-        .attr('transform', 'rotate(-90)')
-        .attr('x', -innerHeight / 2)
-        .attr('y', -40)
-        .attr('text-anchor', 'middle')
-        .text('Potencial de Investimento');
+    // Cria grupo principal
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
-      // Linhas do quadrante
+    // 1. Desenha linhas do quadrante
+    quadrantLines.forEach(line => {
       g.append('line')
-        .attr('x1', xScale(2.5))
-        .attr('y1', 0)
-        .attr('x2', xScale(2.5))
-        .attr('y2', innerHeight)
-        .attr('class', 'quadrant-line');
-        
-      g.append('line')
-        .attr('x1', 0)
-        .attr('y1', yScale(2.5))
-        .attr('x2', innerWidth)
-        .attr('y2', yScale(2.5))
-        .attr('class', 'quadrant-line');
+        .attr('x1', line.x1)
+        .attr('y1', line.y1)
+        .attr('x2', line.x2)
+        .attr('y2', line.y2)
+        .attr('stroke', '#94a3b8')
+        .attr('stroke-dasharray', '4 2');
+    });
 
-      // Tooltip
-      const tooltip = d3.select(tooltipRef.current)
-        .style('position', 'absolute')
-        .style('visibility', 'hidden')
-        .style('background', 'white')
-        .style('padding', '8px')
-        .style('border-radius', '4px')
-        .style('box-shadow', '0 2px 4px rgba(0,0,0,0.1)');
-
-      // Processamento dos dados
-      const partnersWithPositions = partners.map(partner => ({
-        ...partner,
-        ...calculateChartPosition(partner)
-      }));
-
-      // Desenha pontos
-      g.selectAll('.partner-point')
-        .data(partnersWithPositions)
-        .enter()
-        .append('circle')
-        .attr('class', 'partner-point')
-        .attr('cx', d => xScale(d.calculatedX))
-        .attr('cy', d => yScale(d.calculatedY))
-        .attr('r', d => 5 + d.engagement * 2)  // engagement agora é number
-        .attr('fill', d => sizeColorMap[d.size])
-        .attr('stroke', 'white')
-        .style('cursor', 'pointer')
-        .on('mouseover', function(event, d) {
-          d3.select(this).raise();
-          tooltip
-            .style('visibility', 'visible')
-            .html(`
-              <div class="font-bold">${d.name}</div>
-              <div>Tamanho: ${d.size}</div>
-              <div>Engajamento: ${d.engagement}</div>
-              <div>Lead: ${d.leadPotential}</div>
-              <div>Investimento: ${d.investmentPotential}</div>
-              ${d.strategicAlignment ? `<div>Alinhamento: ${d.strategicAlignment}</div>` : ''}
-            `);
-        })
-        .on('mousemove', (event) => {
-          tooltip
-            .style('left', `${event.pageX + 10}px`)
-            .style('top', `${event.pageY - 10}px`);
-        })
-        .on('mouseout', () => tooltip.style('visibility', 'hidden'))
-        .on('click', (_, d) => onSelectPartner(d));
-
-      // Labels dos pontos
-      g.selectAll('.partner-label')
-        .data(partnersWithPositions)
-        .enter()
-        .append('text')
-        .attr('class', 'partner-label')
-        .attr('x', d => xScale(d.calculatedX))
-        .attr('y', d => yScale(d.calculatedY) - 15)
+    // 2. Adiciona rótulos dos quadrantes
+    quadrantLabels.forEach(label => {
+      g.append('text')
+        .attr('x', label.x)
+        .attr('y', label.y)
         .attr('text-anchor', 'middle')
-        .text(d => d.name);
-    };
+        .attr('dominant-baseline', 'middle')
+        .attr('fill', '#64748b')
+        .attr('font-size', '0.75rem')
+        .text(label.text);
+    });
 
-    createChart();
-    window.addEventListener('resize', createChart);
-    
-    return () => window.removeEventListener('resize', createChart);
+    // 3. Calcula posições dos parceiros
+    const partnersWithPositions = partners.map(partner => ({
+      ...partner,
+      ...calculateChartPosition(partner)
+    }));
+
+    // 4. Desenha pontos dos parceiros
+    g.selectAll('.partner-point')
+      .data(partnersWithPositions)
+      .enter()
+      .append('circle')
+      .attr('class', 'partner-point')
+      .attr('cx', d => xScale(d.x))
+      .attr('cy', d => yScale(d.y))
+      .attr('r', 5)
+      .attr('fill', d => sizeColorMap[d.size])
+      .attr('stroke', 'white')
+      .on('click', (_, d) => onSelectPartner(d));
+
   }, [partners, onSelectPartner]);
 
   return (
     <div className="relative w-full h-full">
       <svg ref={svgRef} className="w-full h-full" />
-      <div ref={tooltipRef} className="tooltip" />
+      <div ref={tooltipRef} className="hidden" />
     </div>
   );
 };
