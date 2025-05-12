@@ -6,6 +6,7 @@ import CalculationModal from '@/components/CalculationModal';
 import { Partner, defaultPartner } from '@/types/partner';
 import { toast } from '@/components/ui/sonner';
 import { getPartners, savePartner, updatePartner, deletePartner } from '@/services/partnerService';
+import { Sidebar, SidebarProvider, SidebarContent, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 
 const Index = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -81,66 +82,76 @@ const Index = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-      <header className="bg-white shadow-sm p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Logo />
-          <h1 className="text-xl md:text-2xl font-bold text-corporate-blue">
-            Quadrante de Parceiros
-          </h1>
-        </div>
-      </header>
-      
-      {/* Main Content */}
-      <main className="flex-grow container mx-auto p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
-          {/* Left Panel - Form */}
-          <div className="lg:col-span-3 bg-white rounded-lg shadow-md p-6 h-full">
-            <h2 className="text-xl font-semibold mb-6 text-corporate-blue">
-              {isEditing ? "Editar Parceiro" : "Novo Parceiro"}
-            </h2>
-            <PartnerForm
-              partner={currentPartner}
-              setPartner={setCurrentPartner}
-              onSave={handleSavePartner}
-              onDelete={handleDeletePartner}
-              isEditing={isEditing}
-              clearForm={clearForm}
-            />
+    <SidebarProvider>
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        {/* Header */}
+        <header className="bg-white shadow-sm p-4">
+          <div className="container mx-auto flex justify-between items-center">
+            <Logo />
+            <h1 className="text-xl md:text-2xl font-bold text-corporate-blue">
+              Quadrante de Parceiros
+            </h1>
+            <SidebarTrigger className="lg:hidden" />
           </div>
-          
-          {/* Right Panel - Chart */}
-          <div className="lg:col-span-7 bg-white rounded-lg shadow-md p-6 h-[70vh]">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-corporate-blue">
-                Visualização Estratégica
-              </h2>
-              <CalculationModal />
-            </div>
-            <div className="h-full">
-              {isLoading ? (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-gray-500">Carregando parceiros...</p>
-                </div>
-              ) : (
-                <QuadrantChart
-                  partners={partners}
-                  onSelectPartner={handleSelectPartner}
+        </header>
+        
+        {/* Main Content */}
+        <main className="flex-grow container mx-auto p-4">
+          <div className="flex gap-6">
+            {/* Left Panel - Form (Sidebar) */}
+            <Sidebar collapsible="offcanvas" className="lg:w-80">
+              <SidebarContent className="bg-white rounded-lg shadow-md p-6 h-full">
+                <h2 className="text-xl font-semibold mb-6 text-corporate-blue">
+                  {isEditing ? "Editar Parceiro" : "Novo Parceiro"}
+                </h2>
+                <PartnerForm
+                  partner={currentPartner}
+                  setPartner={setCurrentPartner}
+                  onSave={handleSavePartner}
+                  onDelete={handleDeletePartner}
+                  isEditing={isEditing}
+                  clearForm={clearForm}
                 />
-              )}
-            </div>
+              </SidebarContent>
+            </Sidebar>
+            
+            {/* Right Panel - Chart */}
+            <SidebarInset className="flex-1">
+              <div className="bg-white rounded-lg shadow-md p-6 h-[70vh]">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold text-corporate-blue">
+                    Visualização Estratégica
+                  </h2>
+                  <div className="flex gap-2">
+                    <CalculationModal />
+                    <SidebarTrigger className="hidden lg:inline-flex" />
+                  </div>
+                </div>
+                <div className="h-full">
+                  {isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-gray-500">Carregando parceiros...</p>
+                    </div>
+                  ) : (
+                    <QuadrantChart
+                      partners={partners}
+                      onSelectPartner={handleSelectPartner}
+                    />
+                  )}
+                </div>
+              </div>
+            </SidebarInset>
           </div>
-        </div>
-      </main>
-      
-      {/* Footer */}
-      <footer className="bg-white shadow-inner p-4 mt-8">
-        <div className="container mx-auto text-center text-sm text-gray-600">
-          <p>&copy; {new Date().getFullYear()} A&eight - Quadrante de Parceiros</p>
-        </div>
-      </footer>
-    </div>
+        </main>
+        
+        {/* Footer */}
+        <footer className="bg-white shadow-inner p-4 mt-8">
+          <div className="container mx-auto text-center text-sm text-gray-600">
+            <p>&copy; {new Date().getFullYear()} A&eight - Quadrante de Parceiros</p>
+          </div>
+        </footer>
+      </div>
+    </SidebarProvider>
   );
 };
 
