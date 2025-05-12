@@ -1,76 +1,52 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Logo from '@/components/Logo';
 import PartnerForm from '@/components/PartnerForm';
 import QuadrantChart from '@/components/QuadrantChart';
 import CalculationModal from '@/components/CalculationModal';
 import { Partner, defaultPartner } from '@/types/partner';
 import { toast } from '@/components/ui/sonner';
+import { getPartners, savePartner, updatePartner } from '@/services/partnerService';
 
 const Index = () => {
-  const [partners, setPartners] = useState<Partner[]>([
-    {
-      id: "1",
-      name: "VTEX",
-      leadPotential: "5",
-      investmentPotential: "4",
-      size: "GG",
-      engagement: "5",
-      strategicAlignment: "5"
-    },
-    {
-      id: "2",
-      name: "Koin",
-      leadPotential: "4",
-      investmentPotential: "5",
-      size: "G",
-      engagement: "4",
-      strategicAlignment: "4"
-    },
-    {
-      id: "3",
-      name: "Google",
-      leadPotential: "5",
-      investmentPotential: "1",
-      size: "GG",
-      engagement: "1",
-      strategicAlignment: "1"
-    },
-    {
-      id: "4",
-      name: "Wake",
-      leadPotential: "4",
-      investmentPotential: "3",
-      size: "G",
-      engagement: "4",
-      strategicAlignment: "5"
-    },
-    {
-      id: "5",
-      name: "Uappi",
-      leadPotential: "5",
-      investmentPotential: "3",
-      size: "G",
-      engagement: "4",
-      strategicAlignment: "4"
-    }
-  ]);
+  const [partners, setPartners] = useState<Partner[]>([]);
   const [currentPartner, setCurrentPartner] = useState<Partner>({...defaultPartner});
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
-  const handleSavePartner = (partner: Partner) => {
-    if (isEditing && partner.id) {
-      // Update existing partner
-      setPartners(prevPartners => 
-        prevPartners.map(p => p.id === partner.id ? partner : p)
-      );
-    } else {
-      // Add new partner
-      const newPartner = {
-        ...partner,
-        id: Date.now().toString()
-      };
-      setPartners(prevPartners => [...prevPartners, newPartner]);
+  useEffect(() => {
+    fetchPartners();
+  }, []);
+  
+  const fetchPartners = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedPartners = await getPartners();
+      setPartners(fetchedPartners);
+    } catch (error) {
+      console.error("Failed to fetch partners:", error);
+      toast.error("Erro ao carregar parceiros");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleSavePartner = async (partner: Partner) => {
+    try {
+      if (isEditing && partner.id) {
+        // Update existing partner
+        const updatedPartner = await updatePartner(partner);
+        setPartners(prevPartners => 
+          prevPartners.map(p => p.id === updatedPartner.id ? updatedPartner : p)
+        );
+      } else {
+        // Add new partner
+        const newPartner = await savePartner(partner);
+        setPartners(prevPartners => [...prevPartners, newPartner]);
+      }
+    } catch (error) {
+      console.error("Failed to save partner:", error);
+      // Error toasts are already shown in service functions
     }
   };
   
@@ -123,10 +99,16 @@ const Index = () => {
               <CalculationModal />
             </div>
             <div className="h-full">
-              <QuadrantChart
-                partners={partners}
-                onSelectPartner={handleSelectPartner}
-              />
+              {isLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-gray-500">Carregando parceiros...</p>
+                </div>
+              ) : (
+                <QuadrantChart
+                  partners={partners}
+                  onSelectPartner={handleSelectPartner}
+                />
+              )}
             </div>
           </div>
         </div>
