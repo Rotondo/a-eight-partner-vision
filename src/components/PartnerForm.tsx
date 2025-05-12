@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Partner, companySize, potentialOptions, engagementOptions, strategicAlignmentOptions, defaultPartner } from '@/types/partner';
+import { Partner, companySize, potentialOptions, engagementOptions, strategicAlignmentOptions } from '@/types/partner';
 import { validatePartnerForm } from '@/lib/form-utils';
 import { toast } from '@/components/ui/sonner';
 import { Trash2 } from 'lucide-react';
@@ -30,14 +29,19 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (validatePartnerForm(partner)) {
       onSave(partner);
     }
   };
 
-  const handleInputChange = (field: keyof Partner, value: string) => {
-    setPartner(prev => ({ ...prev, [field]: value }));
+  // Agora todos os campos numéricos são tratados como number
+  const handleInputChange = (field: keyof Partner, value: string | number) => {
+    setPartner(prev => ({
+      ...prev,
+      [field]: (field === 'leadPotential' || field === 'investmentPotential' || field === 'engagement' || field === 'strategicAlignment')
+        ? Number(value)
+        : value
+    }));
   };
 
   const handleDelete = () => {
@@ -62,7 +66,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
       <div className="space-y-2">
         <Label htmlFor="leadPotential">Potencial de Geração de Leads</Label>
         <Select
-          value={partner.leadPotential}
+          value={partner.leadPotential.toString()}
           onValueChange={(value) => handleInputChange('leadPotential', value)}
         >
           <SelectTrigger id="leadPotential" className="w-full">
@@ -70,7 +74,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
           </SelectTrigger>
           <SelectContent>
             {potentialOptions.map((option) => (
-              <SelectItem key={option} value={option}>
+              <SelectItem key={option} value={option.toString()}>
                 {option}
               </SelectItem>
             ))}
@@ -81,7 +85,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
       <div className="space-y-2">
         <Label htmlFor="investmentPotential">Potencial de Investimento</Label>
         <Select
-          value={partner.investmentPotential}
+          value={partner.investmentPotential.toString()}
           onValueChange={(value) => handleInputChange('investmentPotential', value)}
         >
           <SelectTrigger id="investmentPotential" className="w-full">
@@ -89,7 +93,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
           </SelectTrigger>
           <SelectContent>
             {potentialOptions.map((option) => (
-              <SelectItem key={option} value={option}>
+              <SelectItem key={option} value={option.toString()}>
                 {option}
               </SelectItem>
             ))}
@@ -119,7 +123,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
       <div className="space-y-2">
         <Label htmlFor="engagement">Engajamento</Label>
         <Select
-          value={partner.engagement}
+          value={partner.engagement.toString()}
           onValueChange={(value) => handleInputChange('engagement', value)}
         >
           <SelectTrigger id="engagement" className="w-full">
@@ -127,7 +131,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
           </SelectTrigger>
           <SelectContent>
             {engagementOptions.map((option) => (
-              <SelectItem key={option} value={option}>
+              <SelectItem key={option} value={option.toString()}>
                 {option}
               </SelectItem>
             ))}
@@ -138,7 +142,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
       <div className="space-y-2">
         <Label htmlFor="strategicAlignment">Alinhamento Estratégico</Label>
         <Select
-          value={partner.strategicAlignment || "0"}
+          value={partner.strategicAlignment?.toString() || "0"}
           onValueChange={(value) => handleInputChange('strategicAlignment', value)}
         >
           <SelectTrigger id="strategicAlignment" className="w-full">
@@ -146,7 +150,7 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
           </SelectTrigger>
           <SelectContent>
             {strategicAlignmentOptions.map((option) => (
-              <SelectItem key={option} value={option}>
+              <SelectItem key={option} value={option.toString()}>
                 {option}
               </SelectItem>
             ))}
@@ -163,27 +167,25 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
         </Button>
         
         {isEditing && (
-          <>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={clearForm}
-                className="w-full"
-              >
-                Cancelar
-              </Button>
-              
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={handleDelete}
-                className="flex-shrink-0"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={clearForm}
+              className="w-full"
+            >
+              Cancelar
+            </Button>
+            
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
+              className="flex-shrink-0"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         )}
       </div>
     </form>
