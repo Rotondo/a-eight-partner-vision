@@ -1,4 +1,3 @@
-// src/components/QuadrantChart.tsx
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { Partner, sizeColorMap } from '@/types/partner';
@@ -60,13 +59,13 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .text(label.text);
     });
 
-    // 3. Legenda de cores
+    // 3. Legenda de cores (GG em rosa choque)
     const legendData = [
       { label: 'PP', color: sizeColorMap['PP'] },
       { label: 'P', color: sizeColorMap['P'] },
       { label: 'M', color: sizeColorMap['M'] },
       { label: 'G', color: sizeColorMap['G'] },
-      { label: 'GG', color: '#FF46A2' }
+      { label: 'GG', color: '#FF46A2' } // Rosa choque
     ];
 
     const legend = svg.append('g')
@@ -108,7 +107,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y))
       .attr('r', 5)
-      .attr('fill', d => sizeColorMap[d.size])
+      .attr('fill', d => d.size === 'GG' ? '#FF46A2' : sizeColorMap[d.size])
       .attr('stroke', 'white')
       .attr('stroke-width', 1.5)
       .style('cursor', 'pointer')
@@ -126,19 +125,14 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
 
     // 8. Detectar sobreposições
     const overlapping = new Set();
-    
-    // Compara cada par de rótulos para detectar sobreposição
     for (let i = 0; i < labelData.length; i++) {
       const a = labelData[i];
       for (let j = i + 1; j < labelData.length; j++) {
         const b = labelData[j];
-        
-        // Verificar se os retângulos dos rótulos se sobrepõem
         if (a.labelX < b.labelX + b.width &&
             a.labelX + a.width > b.labelX &&
             a.labelY < b.labelY + b.height &&
             a.labelY + a.height > b.labelY) {
-          // Ambos os rótulos estão sobrepostos
           overlapping.add(i);
           overlapping.add(j);
         }
@@ -147,12 +141,10 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
 
     // 9. Criar grupo para os rótulos fixos (que não se sobrepõem)
     const fixedLabels = g.append('g').attr('class', 'fixed-labels');
-    
     // 10. Criar grupo para os rótulos de hover (que se sobrepõem)
     const hoverLabels = g.append('g').attr('class', 'hover-labels').style('opacity', 0);
-    
-    // 11. Adicionar os rótulos fixos (que não têm sobreposição)
 
+    // 11. Adicionar os rótulos fixos (que não têm sobreposição)
     labelData.forEach((d, i) => {
       if (!overlapping.has(i)) {
         fixedLabels.append('text')
@@ -170,20 +162,13 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
     // 12. Configurar interação de hover para mostrar rótulos sobrepostos
     points.on('mouseover', function(event, d) {
       const i = labelData.findIndex(item => item.id === d.id);
-      
-      // Destaca o ponto
       d3.select(this)
         .transition()
         .duration(150)
         .attr('r', 8)
         .attr('stroke-width', 2);
-      
-      // Se o rótulo está na lista de sobrepostos, mostra-o
       if (overlapping.has(i)) {
-        // Limpa rótulos anteriores
         hoverLabels.selectAll('*').remove();
-        
-        // Adiciona linha conectora
         hoverLabels
           .append('line')
           .attr('x1', xScale(d.x))
@@ -193,8 +178,6 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
           .attr('stroke', '#22223b')
           .attr('stroke-width', 1)
           .attr('stroke-dasharray', '2,2');
-        
-        // Adiciona o rótulo
         hoverLabels
           .append('text')
           .attr('x', labelData[i].labelX)
@@ -205,12 +188,8 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
           .attr('stroke-width', '0.3px')
           .attr('paint-order', 'stroke')
           .text(d.name);
-        
-        // Torna o grupo visível
         hoverLabels.style('opacity', 1);
       }
-      
-      // Mostra tooltip em todos os casos
       tooltip
         .html(`
           <div class="font-semibold">${d.name}</div>
@@ -229,17 +208,12 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .style('top', `${event.pageY - 10}px`);
     })
     .on('mouseout', function() {
-      // Restaura o tamanho do ponto
       d3.select(this)
         .transition()
         .duration(150)
         .attr('r', 5)
         .attr('stroke-width', 1.5);
-      
-      // Esconde o rótulo de hover
       hoverLabels.style('opacity', 0);
-      
-      // Esconde o tooltip
       tooltip.style('display', 'none');
     });
 
@@ -260,7 +234,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       .attr('fill', '#64748b')
       .attr('font-size', '0.9rem')
       .text('Potencial de Investimento');
-      
+
   }, [partners, onSelectPartner]);
 
   return (
