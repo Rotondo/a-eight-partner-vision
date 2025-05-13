@@ -119,28 +119,29 @@ const Index = () => {
             </Sidebar>
             
             {/* Gráfico */}
-            <SidebarInset className="flex-1 h-full">
-              <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-semibold text-corporate-blue">
-                    Visualização Estratégica
-                  </h2>
-                  <CalculationModal />
-                </div>
-                <div className="flex-1">
-                  {isLoading ? (
-                    <div className="flex items-center justify-center h-full">
-                      <p className="text-gray-500">Carregando parceiros...</p>
-                    </div>
-                  ) : (
-                    <QuadrantChart
-                      partners={partners}
-                      onSelectPartner={handleSelectPartner}
-                    />
-                  )}
-                </div>
-              </div>
-            </SidebarInset>
+<SidebarInset className="flex-1 h-full">
+  <div className="bg-white rounded-lg shadow-md p-0 h-full flex flex-col">
+    <div className="flex justify-between items-center mb-6 p-6">
+      <h2 className="text-xl font-semibold text-corporate-blue">
+        Visualização Estratégica
+      </h2>
+      <CalculationModal />
+    </div>
+    <div className="flex-1 w-full h-full">
+      {isLoading ? (
+        <div className="flex items-center justify-center h-full">
+          <p className="text-gray-500">Carregando parceiros...</p>
+        </div>
+      ) : (
+        <QuadrantChart
+          partners={partners}
+          onSelectPartner={handleSelectPartner}
+        />
+      )}
+    </div>
+  </div>
+</SidebarInset>
+
           </div>
         </main>
         
