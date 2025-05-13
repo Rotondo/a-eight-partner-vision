@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import PartnerForm from '@/components/PartnerForm';
 import QuadrantChart from '@/components/QuadrantChart';
@@ -8,6 +9,7 @@ import { Partner, defaultPartner } from '@/types/partner';
 import { toast } from '@/components/ui/sonner';
 import { getPartners, savePartner, updatePartner, deletePartner } from '@/services/partnerService';
 import { Sidebar, SidebarProvider, SidebarContent, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
@@ -128,7 +130,14 @@ const Index = () => {
                     <h2 className="text-xl font-semibold text-corporate-blue">
                       Visualização Estratégica
                     </h2>
-                    <CalculationModal />
+                    <div className="flex items-center gap-2">
+                      <Link to="/partners">
+                        <Button className="bg-corporate-blue hover:bg-opacity-90">
+                          Lista de Parceiros
+                        </Button>
+                      </Link>
+                      <CalculationModal />
+                    </div>
                   </div>
                 </div>
                 <div className="flex-1 p-2 overflow-hidden">
