@@ -1,4 +1,6 @@
 
+import * as d3 from 'd3';
+
 // Definir tipos para configuração do gráfico sem depender diretamente do namespace d3
 export interface ChartConfig {
   margin: {
