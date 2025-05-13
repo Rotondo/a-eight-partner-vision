@@ -1,12 +1,13 @@
+
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Partner, companySize, potentialOptions, engagementOptions, strategicAlignmentOptions } from '@/types/partner';
+import { Partner, companySize, potentialOptions, engagementOptions, strategicAlignmentOptions, alertStatusOptions } from '@/types/partner';
 import { validatePartnerForm } from '@/lib/form-utils';
 import { toast } from '@/components/ui/sonner';
-import { Trash2 } from 'lucide-react';
+import { Trash2, TriangleAlert, CheckCircle2 } from 'lucide-react';
 
 interface PartnerFormProps {
   partner: Partner;
@@ -163,6 +164,34 @@ const PartnerForm: React.FC<PartnerFormProps> = ({
                 {option} {option >= 3 ? '🌟' : '⚠️'}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="alertStatus">Status de Atenção</Label>
+        <Select
+          value={partner.alertStatus || "ok"}
+          onValueChange={(value) => handleInputChange('alertStatus', value as 'ok' | 'attention')}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecione o status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem 
+              value="ok"
+              className="flex items-center gap-2 bg-green-50"
+            >
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <span>OK</span>
+            </SelectItem>
+            <SelectItem 
+              value="attention"
+              className="flex items-center gap-2 bg-red-50"
+            >
+              <TriangleAlert className="h-4 w-4 text-red-600" />
+              <span>Necessita Atenção</span>
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>

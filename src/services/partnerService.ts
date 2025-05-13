@@ -1,3 +1,4 @@
+
 import { Partner } from '../types/partner';
 import { supabase } from '../lib/supabaseClient';
 import { toast } from '../components/ui/sonner';
@@ -10,7 +11,8 @@ const toDbFormat = (partner: Partner) => {
     investment_potential: partner.investmentPotential,
     size: partner.size,
     engagement: partner.engagement,
-    strategic_alignment: partner.strategicAlignment || 0
+    strategic_alignment: partner.strategicAlignment || 0,
+    alert_status: partner.alertStatus || 'ok'
   };
 };
 
@@ -23,7 +25,8 @@ const fromDbFormat = (dbPartner: any): Partner => {
     investmentPotential: dbPartner.investment_potential,
     size: dbPartner.size,
     engagement: dbPartner.engagement,
-    strategicAlignment: dbPartner.strategic_alignment
+    strategicAlignment: dbPartner.strategic_alignment,
+    alertStatus: dbPartner.alert_status || 'ok'
   };
 };
 

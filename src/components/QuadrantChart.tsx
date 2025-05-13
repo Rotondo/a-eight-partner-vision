@@ -1,7 +1,9 @@
+
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { Partner, sizeColorMap } from '@/types/partner';
 import { getChartConfig, calculateChartPosition } from '@/lib/form-utils';
+import { TriangleAlert } from 'lucide-react';
 
 interface QuadrantChartProps {
   partners: Partner[];
@@ -108,6 +110,19 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .text(item.label);
     });
 
+    // Alerta icon legend
+    legend.append('path')
+      .attr('d', 'M11.148 4.374a.973.973 0 0 0-1.716 0L2.583 16.73a.965.965 0 0 0 .858 1.394h16.118a.965.965 0 0 0 .858-1.394l-6.851-12.356zM10 13.006a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm1-6.006a1 1 0 0 1 1 1v3a1 1 0 0 1-2 0v-3a1 1 0 0 1 1-1z')
+      .attr('transform', `translate(${legendData.length * 60}, 0) scale(0.7)`)
+      .attr('fill', '#ea384c');
+      
+    legend.append('text')
+      .attr('x', legendData.length * 60 + 15)
+      .attr('y', 5)
+      .attr('font-size', '0.8rem')
+      .attr('fill', '#64748b')
+      .text('Necessita Atenção');
+
     const tooltip = d3.select(tooltipRef.current)
       .attr('class', 'absolute bg-white p-2 rounded shadow-md text-sm z-10 pointer-events-none')
       .style('display', 'none');
@@ -117,19 +132,30 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       ...calculateChartPosition(partner)
     }));
 
-    const points = g.selectAll('.partner-point')
+    const pointGroups = g.selectAll('.partner-point-group')
       .data(partnersWithPositions)
       .enter()
-      .append('circle')
+      .append('g')
+      .attr('class', 'partner-point-group')
+      .style('cursor', 'pointer')
+      .on('click', (_, d) => onSelectPartner(d));
+
+    // Add circles for all partners
+    pointGroups.append('circle')
       .attr('class', 'partner-point')
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y))
       .attr('r', 5)
       .attr('fill', d => d.size === 'GG' ? '#FF46A2' : sizeColorMap[d.size])
       .attr('stroke', 'white')
-      .attr('stroke-width', 1.5)
-      .style('cursor', 'pointer')
-      .on('click', (_, d) => onSelectPartner(d));
+      .attr('stroke-width', 1.5);
+
+    // Add alert triangles for partners that need attention
+    pointGroups.filter(d => d.alertStatus === 'attention')
+      .append('path')
+      .attr('d', 'M11.148 4.374a.973.973 0 0 0-1.716 0L2.583 16.73a.965.965 0 0 0 .858 1.394h16.118a.965.965 0 0 0 .858-1.394l-6.851-12.356zM10 13.006a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm1-6.006a1 1 0 0 1 1 1v3a1 1 0 0 1-2 0v-3a1 1 0 0 1 1-1z')
+      .attr('transform', d => `translate(${xScale(d.x) - 10}, ${yScale(d.y) - 22}) scale(0.8)`)
+      .attr('fill', '#ea384c');
 
     const labelPadding = 10;
     const labelData = partnersWithPositions.map(d => ({
@@ -172,9 +198,9 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       }
     });
 
-    points.on('mouseover', function(event, d) {
+    pointGroups.on('mouseover', function(event, d) {
       const i = labelData.findIndex(item => item.id === d.id);
-      d3.select(this)
+      d3.select(this).select('circle')
         .transition()
         .duration(150)
         .attr('r', 8)
@@ -209,6 +235,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
           <div>Lead: ${d.leadPotential}</div>
           <div>Investimento: ${d.investmentPotential}</div>
           <div>Engajamento: ${d.engagement}</div>
+          ${d.alertStatus === 'attention' ? '<div class="text-red-500 font-semibold">⚠️ Necessita Atenção</div>' : ''}
         `)
         .style('left', `${event.pageX + 10}px`)
         .style('top', `${event.pageY - 10}px`)
@@ -220,7 +247,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .style('top', `${event.pageY - 10}px`);
     })
     .on('mouseout', function() {
-      d3.select(this)
+      d3.select(this).select('circle')
         .transition()
         .duration(150)
         .attr('r', 5)

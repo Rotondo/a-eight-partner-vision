@@ -1,3 +1,4 @@
+
 // src/types/partner.ts
 
 // Interface principal do parceiro, usando tipos corretos
@@ -9,6 +10,7 @@ export interface Partner {
   size: 'PP' | 'P' | 'M' | 'G' | 'GG';
   engagement: number;             // Agora é number
   strategicAlignment?: number;    // Opcional, mas number
+  alertStatus?: 'ok' | 'attention'; // Novo campo para status de alerta
 }
 
 // Opções para seleção nos formulários
@@ -25,6 +27,7 @@ export const sizeColorMap: Record<Partner["size"], string> = {
 export const potentialOptions = [0, 1, 2, 3, 4, 5];
 export const engagementOptions = [0, 1, 2, 3, 4, 5];
 export const strategicAlignmentOptions = [0, 1, 2, 3, 4, 5];
+export const alertStatusOptions = ["ok", "attention"] as const;
 
 // Valor padrão para um novo parceiro
 export const defaultPartner: Partner = {
@@ -33,5 +36,6 @@ export const defaultPartner: Partner = {
   investmentPotential: 0,
   size: "PP",
   engagement: 0,
-  strategicAlignment: 0
+  strategicAlignment: 0,
+  alertStatus: "ok"
 };

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Filter, ArrowDownAZ, ArrowUpZA } from 'lucide-react';
+import { ArrowLeft, Filter, ArrowDownAZ, ArrowUpZA, TriangleAlert, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Partner, companySize, sizeColorMap } from '@/types/partner';
+import { Partner, companySize, sizeColorMap, alertStatusOptions } from '@/types/partner';
 import { getPartners, updatePartner } from '@/services/partnerService';
 import { toast } from '@/components/ui/sonner';
 import Logo from '@/components/Logo';
@@ -223,6 +223,34 @@ const PartnersList = () => {
       );
     }
 
+    // Alert status field
+    if (field === 'alertStatus') {
+      return (
+        <Select
+          value={editForm.alertStatus || 'ok'}
+          onValueChange={(value) => handleEditInputChange('alertStatus', value)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ok" className="bg-green-50">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <span>OK</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="attention" className="bg-red-50">
+              <div className="flex items-center gap-2">
+                <TriangleAlert className="h-4 w-4 text-red-600" />
+                <span>Necessita Atenção</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      );
+    }
+
     // Numeric fields
     if (
       field === 'leadPotential' ||
@@ -271,6 +299,25 @@ const PartnersList = () => {
         </div>
       );
     }
+
+    if (field === 'alertStatus') {
+      return (
+        <div className="flex items-center gap-2">
+          {partner.alertStatus === 'attention' ? (
+            <>
+              <TriangleAlert className="h-4 w-4 text-red-600" />
+              <span className="text-red-600 font-medium">Necessita Atenção</span>
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <span className="text-green-600">OK</span>
+            </>
+          )}
+        </div>
+      );
+    }
+
     return partner[field];
   };
 
@@ -407,13 +454,20 @@ const PartnersList = () => {
                         Alinhamento Estratégico
                         <SortIcon field="strategicAlignment" />
                       </TableHead>
+                      <TableHead
+                        className="cursor-pointer"
+                        onClick={() => handleSort('alertStatus')}
+                      >
+                        Status
+                        <SortIcon field="alertStatus" />
+                      </TableHead>
                       <TableHead>Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredPartners.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-6">
+                        <TableCell colSpan={8} className="text-center py-6">
                           Nenhum parceiro encontrado
                         </TableCell>
                       </TableRow>
@@ -426,6 +480,7 @@ const PartnersList = () => {
                           <TableCell>{renderEditableCell(partner, 'size')}</TableCell>
                           <TableCell>{renderEditableCell(partner, 'engagement')}</TableCell>
                           <TableCell>{renderEditableCell(partner, 'strategicAlignment')}</TableCell>
+                          <TableCell>{renderEditableCell(partner, 'alertStatus')}</TableCell>
                           <TableCell>
                             {editingPartner === partner.id ? (
                               <div className="flex gap-2">
