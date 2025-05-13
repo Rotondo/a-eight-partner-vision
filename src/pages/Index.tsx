@@ -96,34 +96,53 @@ const Index = () => {
         </header>
         
         {/* Main Content */}
-       <main className="flex-grow">
-  <div className="flex gap-6 h-[calc(100vh-160px)] w-full">
-    {/* Sidebar */}
-    <Sidebar ... />
-    
-    {/* Gráfico */}
-    <SidebarInset className="flex-1 h-full">
-      <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
-        <div className="flex justify-between items-center mb-6">
-          {/* ...cabeçalho do gráfico... */}
-        </div>
-        <div className="flex-1">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">Carregando parceiros...</p>
-            </div>
-          ) : (
-            <QuadrantChart
-              partners={partners}
-              onSelectPartner={handleSelectPartner}
-            />
-          )}
-        </div>
-      </div>
-    </SidebarInset>
-  </div>
-</main>
-
+        <main className="flex-grow">
+          <div className="flex gap-6 h-[calc(100vh-160px)] w-full">
+            {/* Sidebar */}
+            <Sidebar collapsible="offcanvas" className="lg:w-80">
+              <SidebarContent className="bg-white rounded-lg shadow-md p-6 h-full relative">
+                <div className="absolute top-4 right-4">
+                  <SidebarTrigger />
+                </div>
+                <h2 className="text-xl font-semibold mb-6 text-corporate-blue">
+                  {isEditing ? "Editar Parceiro" : "Novo Parceiro"}
+                </h2>
+                <PartnerForm
+                  partner={currentPartner}
+                  setPartner={setCurrentPartner}
+                  onSave={handleSavePartner}
+                  onDelete={handleDeletePartner}
+                  isEditing={isEditing}
+                  clearForm={clearForm}
+                />
+              </SidebarContent>
+            </Sidebar>
+            
+            {/* Gráfico */}
+            <SidebarInset className="flex-1 h-full">
+              <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold text-corporate-blue">
+                    Visualização Estratégica
+                  </h2>
+                  <CalculationModal />
+                </div>
+                <div className="flex-1">
+                  {isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-gray-500">Carregando parceiros...</p>
+                    </div>
+                  ) : (
+                    <QuadrantChart
+                      partners={partners}
+                      onSelectPartner={handleSelectPartner}
+                    />
+                  )}
+                </div>
+              </div>
+            </SidebarInset>
+          </div>
+        </main>
         
         {/* Footer */}
         <footer className="bg-white shadow-inner p-4 mt-auto">
