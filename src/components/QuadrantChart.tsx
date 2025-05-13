@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { Partner, sizeColorMap } from '@/types/partner';
@@ -11,12 +12,39 @@ interface QuadrantChartProps {
 const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!svgRef.current || partners.length === 0) return;
 
-    const width = svgRef.current.clientWidth;
-    const height = svgRef.current.clientHeight;
+    const resizeChart = () => {
+      if (!containerRef.current || !svgRef.current) return;
+      
+      // Get the container dimensions
+      const containerWidth = containerRef.current.clientWidth;
+      const containerHeight = containerRef.current.clientHeight;
+      
+      // Set SVG dimensions to match container
+      const svg = d3.select(svgRef.current);
+      svg.attr('width', containerWidth).attr('height', containerHeight);
+      
+      renderChart(containerWidth, containerHeight);
+    };
+
+    // Initial render
+    resizeChart();
+
+    // Add resize listener
+    window.addEventListener('resize', resizeChart);
+    
+    return () => {
+      window.removeEventListener('resize', resizeChart);
+    };
+  }, [partners, onSelectPartner]);
+
+  const renderChart = (width: number, height: number) => {
+    if (!svgRef.current || partners.length === 0) return;
+
     const { 
       margin, 
       innerWidth, 
@@ -218,22 +246,22 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       .attr('fill', '#64748b')
       .attr('font-size', '0.9rem')
       .text('Potencial de Investimento');
+  };
 
-  }, [partners, onSelectPartner]);
-
-return (
-  <div className="w-full h-full">
-    <svg 
-      ref={svgRef} 
-      className="w-full h-full"
-      style={{ 
-        minWidth: "100%",
-        minHeight: "500px", // Altura mínima para evitar colapso
-        shapeRendering: "crispEdges" 
-      }}
-    />
-    <div ref={tooltipRef} className="absolute hidden bg-white p-2 rounded shadow-md text-sm z-10" />
-  </div>
-);
+  return (
+    <div ref={containerRef} className="w-full h-full flex-1 relative">
+      <svg 
+        ref={svgRef} 
+        className="w-full h-full"
+        style={{
+          minHeight: "100%",
+          display: "block"
+        }}
+        preserveAspectRatio="xMidYMid meet"
+      />
+      <div ref={tooltipRef} className="absolute hidden bg-white p-2 rounded shadow-md text-sm z-10" />
+    </div>
+  );
+};
 
 export default QuadrantChart;

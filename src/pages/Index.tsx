@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Logo from '@/components/Logo';
 import PartnerForm from '@/components/PartnerForm';
@@ -83,7 +84,7 @@ const Index = () => {
   
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="min-h-screen bg-gray-50 flex flex-col w-full">
         {/* Header */}
         <header className="bg-white shadow-sm p-4">
           <div className="container mx-auto flex justify-between items-center">
@@ -96,8 +97,8 @@ const Index = () => {
         </header>
         
         {/* Main Content */}
-        <main className="flex-grow">
-          <div className="flex gap-6 h-[calc(100vh-160px)] w-full">
+        <main className="flex-grow flex">
+          <div className="flex flex-1 gap-6 h-[calc(100vh-120px)] w-full p-4">
             {/* Sidebar */}
             <Sidebar collapsible="offcanvas" className="lg:w-80">
               <SidebarContent className="bg-white rounded-lg shadow-md p-6 h-full relative">
@@ -119,29 +120,30 @@ const Index = () => {
             </Sidebar>
             
             {/* Gráfico */}
-<SidebarInset className="flex-1 h-full">
-  <div className="bg-white rounded-lg shadow-md h-full flex flex-col p-0">
-    <div className="flex justify-between items-center mb-6 p-6">
-      <h2 className="text-xl font-semibold text-corporate-blue">
-        Visualização Estratégica
-      </h2>
-      <CalculationModal />
-    </div>
-    <div className="flex-1 w-full h-full">
-      {isLoading ? (
-        <div className="flex items-center justify-center h-full">
-          <p className="text-gray-500">Carregando parceiros...</p>
-        </div>
-      ) : (
-        <QuadrantChart
-          partners={partners}
-          onSelectPartner={handleSelectPartner}
-        />
-      )}
-    </div>
-  </div>
-</SidebarInset>
-
+            <SidebarInset className="flex-1 h-full">
+              <div className="bg-white rounded-lg shadow-md h-full flex flex-col">
+                <div className="p-4 border-b">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-semibold text-corporate-blue">
+                      Visualização Estratégica
+                    </h2>
+                    <CalculationModal />
+                  </div>
+                </div>
+                <div className="flex-1 p-2 overflow-hidden">
+                  {isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-gray-500">Carregando parceiros...</p>
+                    </div>
+                  ) : (
+                    <QuadrantChart
+                      partners={partners}
+                      onSelectPartner={handleSelectPartner}
+                    />
+                  )}
+                </div>
+              </div>
+            </SidebarInset>
           </div>
         </main>
         
