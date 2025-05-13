@@ -120,7 +120,7 @@ const Index = () => {
             
             {/* Gráfico */}
 <SidebarInset className="flex-1 h-full">
-  <div className="bg-white rounded-lg shadow-md p-0 h-full flex flex-col">
+  <div className="bg-white rounded-lg shadow-md h-full flex flex-col p-0">
     <div className="flex justify-between items-center mb-6 p-6">
       <h2 className="text-xl font-semibold text-corporate-blue">
         Visualização Estratégica
