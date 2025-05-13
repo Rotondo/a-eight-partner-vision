@@ -29,3 +29,10 @@ export interface PartnerPosition {
   y: number;
   quadrant: number;
 }
+
+// Adding ChartContext interface that was missing
+export interface ChartContext {
+  g: d3.Selection<SVGGElement, unknown, null, undefined>;
+  xScale: (value: number) => number;
+  yScale: (value: number) => number;
+}
