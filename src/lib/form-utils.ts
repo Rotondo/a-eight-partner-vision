@@ -28,28 +28,24 @@ const QUADRANT_LABELS = [
  * @param partner - Objeto Partner a ser validado
  * @returns Retorna true se os dados são válidos
  */
-export const validatePartnerForm = (partner: Partner): boolean => {
-  if (!partner.name.trim()) {
-    toast.error("Nome do parceiro é obrigatório");
-    return false;
-  }
-
-  const numericFields: Array<keyof Partner> = [
-    'leadPotential', 
-    'investmentPotential', 
-    'engagement', 
-    'strategicAlignment'
-  ];
-
-  for (const field of numericFields) {
-    const value = partner[field] || 0;
-    if (isNaN(value) || value < VALIDATION_RANGE.min || value > VALIDATION_RANGE.max) {
-      toast.error(`${field} deve estar entre ${VALIDATION_RANGE.min} e ${VALIDATION_RANGE.max}`);
-      return false;
-    }
-  }
-
-  return true;
+export const validatePartnerForm = (partner: Partner) => {
+  // Valida que todos os campos estão preenchidos e com tipos corretos
+  const requiredFieldsValid = partner.name && 
+    partner.leadPotential !== undefined && 
+    partner.investmentPotential !== undefined && 
+    partner.size && 
+    partner.engagement !== undefined;
+  
+  // Converte para números e verifica se estão entre 0 e 5
+  const numericFieldsValid = 
+    (typeof partner.leadPotential === 'number' ? 
+      partner.leadPotential >= 0 && partner.leadPotential <= 5 : false) && 
+    (typeof partner.investmentPotential === 'number' ? 
+      partner.investmentPotential >= 0 && partner.investmentPotential <= 5 : false) && 
+    (typeof partner.engagement === 'number' ? 
+      partner.engagement >= 0 && partner.engagement <= 5 : false);
+  
+  return requiredFieldsValid && numericFieldsValid;
 };
 
 /**

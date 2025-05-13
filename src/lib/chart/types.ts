@@ -1,13 +1,31 @@
-import { Partner } from '@/types/partner';
 
-export type ChartContext = {
-  g: d3.Selection<SVGGElement, unknown, null, undefined>;
+// Definir tipos para configuração do gráfico sem depender diretamente do namespace d3
+export interface ChartConfig {
+  margin: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
+  innerWidth: number;
+  innerHeight: number;
   xScale: (value: number) => number;
   yScale: (value: number) => number;
-  width: number;
-  height: number;
-};
+  quadrantLines: Array<{
+    x1: number;
+    y1: number;
+    x2: number;
+    y2: number;
+  }>;
+  quadrantLabels: Array<{
+    x: number;
+    y: number;
+    text: string;
+  }>;
+}
 
-export type ChartData = {
-  partners: (Partner & { x: number; y: number })[];
-};
+export interface PartnerPosition {
+  x: number;
+  y: number;
+  quadrant: number;
+}

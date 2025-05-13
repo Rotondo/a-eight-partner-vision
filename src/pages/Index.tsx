@@ -114,6 +114,7 @@ const Index = () => {
                   onSave={handleSavePartner}
                   onDelete={handleDeletePartner}
                   isEditing={isEditing}
+                  setIsEditing={setIsEditing}
                   clearForm={clearForm}
                 />
               </SidebarContent>
