@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Filter, ArrowDownAZ, ArrowUpZA } from 'lucide-react';
@@ -84,7 +83,7 @@ const PartnersList = () => {
     }
 
     // Filter by size
-    if (filters.size) {
+    if (filters.size && filters.size !== 'all') {
       result = result.filter(partner => partner.size === filters.size);
     }
 
@@ -328,7 +327,7 @@ const PartnersList = () => {
                     <SelectValue placeholder="Tamanho" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os tamanhos</SelectItem>
+                    <SelectItem value="all">Todos os tamanhos</SelectItem>
                     {companySize.map((size) => (
                       <SelectItem key={size} value={size}>
                         {size}
