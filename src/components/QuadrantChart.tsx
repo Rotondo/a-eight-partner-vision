@@ -223,10 +223,16 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
 
 return (
   <div className="w-full h-full">
-    <svg ref={svgRef} className="w-full h-full" />
+    <svg 
+      ref={svgRef} 
+      className="w-full h-full"
+      style={{ 
+        minWidth: "100%",
+        minHeight: "500px", // Altura mínima para evitar colapso
+        shapeRendering: "crispEdges" 
+      }}
+    />
     <div ref={tooltipRef} className="absolute hidden bg-white p-2 rounded shadow-md text-sm z-10" />
   </div>
 );
-};
-
 export default QuadrantChart;
