@@ -120,14 +120,14 @@ const Index = () => {
             
             {/* Gráfico */}
 <SidebarInset className="flex-1 h-full">
-  <div className="bg-white rounded-lg shadow-md p-0 h-full flex flex-col">
+  <div className="bg-white rounded-lg shadow-md h-full flex flex-col p-0">
     <div className="flex justify-between items-center mb-6 p-6">
       <h2 className="text-xl font-semibold text-corporate-blue">
         Visualização Estratégica
       </h2>
       <CalculationModal />
     </div>
-    <div className="flex-1 w-full h-full">
+    <div className="flex-1 w-full h-full relative">
       {isLoading ? (
         <div className="flex items-center justify-center h-full">
           <p className="text-gray-500">Carregando parceiros...</p>
@@ -141,6 +141,7 @@ const Index = () => {
     </div>
   </div>
 </SidebarInset>
+
 
           </div>
         </main>
