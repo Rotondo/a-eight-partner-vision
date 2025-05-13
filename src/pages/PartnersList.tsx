@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Filter, ArrowDownAZ, ArrowUpZA } from 'lucide-react';
@@ -38,7 +39,7 @@ const PartnersList = () => {
   const [editForm, setEditForm] = useState<Partner | null>(null);
   const [filters, setFilters] = useState({
     name: '',
-    size: '' as Partner['size'] | '',
+    size: 'all',
   });
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Partner | null;
@@ -56,7 +57,7 @@ const PartnersList = () => {
   // Apply filters whenever partners or filters change
   useEffect(() => {
     applyFilters();
-  }, [partners, filters]);
+  }, [partners, filters, sortConfig]);
 
   const fetchPartners = async () => {
     try {
@@ -90,9 +91,25 @@ const PartnersList = () => {
     // Apply sorting if set
     if (sortConfig.key) {
       result.sort((a, b) => {
+        // Get the values to compare
         const aValue = a[sortConfig.key as keyof Partner];
         const bValue = b[sortConfig.key as keyof Partner];
-
+        
+        // Handle string comparison
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          return sortConfig.direction === 'asc' 
+            ? aValue.localeCompare(bValue) 
+            : bValue.localeCompare(aValue);
+        }
+        
+        // Handle number comparison
+        if (typeof aValue === 'number' && typeof bValue === 'number') {
+          return sortConfig.direction === 'asc' 
+            ? aValue - bValue 
+            : bValue - aValue;
+        }
+        
+        // Default comparison for other types
         if (aValue < bValue) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
