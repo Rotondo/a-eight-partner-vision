@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { Partner, sizeColorMap } from '@/types/partner';
@@ -88,7 +87,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       { label: 'P', color: sizeColorMap['P'] },
       { label: 'M', color: sizeColorMap['M'] },
       { label: 'G', color: sizeColorMap['G'] },
-      { label: 'GG', color: '#FF46A2' }
+      { label: 'GG', color: sizeColorMap['GG'] }
     ];
 
     const legend = svg.append('g')
@@ -110,7 +109,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
         .text(item.label);
     });
 
-    // Alerta icon legend
+    // Adicionar legenda para o ícone de alerta
     legend.append('path')
       .attr('d', 'M11.148 4.374a.973.973 0 0 0-1.716 0L2.583 16.73a.965.965 0 0 0 .858 1.394h16.118a.965.965 0 0 0 .858-1.394l-6.851-12.356zM10 13.006a1 1 0 1 1 2 0 1 1 0 0 1-2 0zm1-6.006a1 1 0 0 1 1 1v3a1 1 0 0 1-2 0v-3a1 1 0 0 1 1-1z')
       .attr('transform', `translate(${legendData.length * 60}, 0) scale(0.7)`)
@@ -146,7 +145,7 @@ const QuadrantChart: React.FC<QuadrantChartProps> = ({ partners, onSelectPartner
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y))
       .attr('r', 5)
-      .attr('fill', d => d.size === 'GG' ? '#FF46A2' : sizeColorMap[d.size])
+      .attr('fill', d => sizeColorMap[d.size])
       .attr('stroke', 'white')
       .attr('stroke-width', 1.5);
 

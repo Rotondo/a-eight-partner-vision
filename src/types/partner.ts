@@ -10,7 +10,7 @@ export interface Partner {
   size: 'PP' | 'P' | 'M' | 'G' | 'GG';
   engagement: number;             // Agora é number
   strategicAlignment?: number;    // Opcional, mas number
-  alertStatus?: 'ok' | 'attention'; // Novo campo para status de alerta
+  alertStatus?: 'ok' | 'attention'; // Campo para status de alerta
 }
 
 // Opções para seleção nos formulários
